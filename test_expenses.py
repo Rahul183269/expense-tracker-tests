@@ -1,11 +1,8 @@
 import pytest
-from fastapi.testclient import TestClient
-from main import app
-
-client = TestClient(app)
 
 
-def test_create_expense():
+
+def test_create_expense(client):
     response = client.post(
         "/expenses",
         json={"title": "Lunch", "amount": 250.0, "category": "food"},
@@ -16,7 +13,7 @@ def test_create_expense():
     assert body["amount"] == 250.0
 
 
-def test_get_expense_not_found():
+def test_get_expense_not_found(client):
     response = client.get("/expenses/9999")
     assert response.status_code == 404
 
@@ -34,6 +31,25 @@ def test_get_expense_not_found():
         {"title": "Lunch", "amount": "abc", "category": "food"},
     ],
 )
-def test_create_expense_invalid_input(payload):
+def test_create_expense_invalid_input(client, payload):
     response = client.post("/expenses", json=payload)
     assert response.status_code == 422
+
+
+def test_list_expenses_empty(client):
+    response = client.get("/expenses")
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+def test_list_expenses_after_create(client):
+    client.post(
+        "/expenses",
+        json={"title": "Lunch", "amount": 250.0, "category": "food"},
+    )
+    client.post(
+        "/expenses",
+        json={"title": "Bus", "amount": 40.0, "category": "travel"},
+    )
+    response = client.get("/expenses")
+    assert len(response.json()) == 2

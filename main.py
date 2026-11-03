@@ -35,3 +35,8 @@ def get_expense(expense_id: int):
         if expense["id"] == expense_id:
             return expense
     raise HTTPException(status_code=404, detail="Expense not found")
+
+
+@app.delete("/reset", status_code=204)
+def reset():
+    expenses.clear()
