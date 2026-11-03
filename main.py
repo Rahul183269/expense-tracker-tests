@@ -6,11 +6,11 @@ app = FastAPI()
 expenses = []
 
 
-
 class ExpenseIn(BaseModel):
     title: str = Field(min_length=1)
     amount: float = Field(gt=0)
     category: str = Field(min_length=1)
+
 
 @app.get("/health")
 def health():
