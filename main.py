@@ -1,16 +1,16 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 app = FastAPI()
 
 expenses = []
 
 
-class ExpenseIn(BaseModel):
-    title: str
-    amount: float
-    category: str
 
+class ExpenseIn(BaseModel):
+    title: str = Field(min_length=1)
+    amount: float = Field(gt=0)
+    category: str
 
 @app.get("/health")
 def health():

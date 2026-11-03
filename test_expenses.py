@@ -26,3 +26,27 @@ def test_create_expense_missing_title():
         json={"amount": 100.0, "category": "food"},
     )
     assert response.status_code == 422
+
+
+def test_create_expense_negative_amount():
+    response = client.post(
+        "/expenses",
+        json={"title": "Refund?", "amount": -500.0, "category": "food"},
+    )
+    assert response.status_code == 422
+
+
+def test_create_expense_empty_title():
+    response = client.post(
+        "/expenses",
+        json={"title": "", "amount": 100.0, "category": "food"},
+    )
+    assert response.status_code == 422
+
+
+def test_create_expense_zero_amount():
+    response = client.post(
+        "/expenses",
+        json={"title": "Nothing", "amount": 0, "category": "food"},
+    )
+    assert response.status_code == 422
