@@ -50,3 +50,19 @@ def test_create_expense_zero_amount():
         json={"title": "Nothing", "amount": 0, "category": "food"},
     )
     assert response.status_code == 422
+
+
+def test_create_expense_category_integer():
+    response = client.post(
+        "/expenses",
+        json={"title": "Lunch", "amount": 100.0, "category": 123},
+    )
+    assert response.status_code == 422
+
+
+def test_create_expense_empty_category():
+    response = client.post(
+        "/expenses",
+        json={"title": "Lunch", "amount": 100.0, "category": ""},
+    )
+    assert response.status_code == 422
