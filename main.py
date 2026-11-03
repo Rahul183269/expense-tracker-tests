@@ -1,7 +1,37 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 
 app = FastAPI()
+
+expenses = []
+
+
+class ExpenseIn(BaseModel):
+    title: str
+    amount: float
+    category: str
+
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.post("/expenses", status_code=201)
+def create_expense(expense: ExpenseIn):
+    new_expense = {"id": len(expenses) + 1, **expense.model_dump()}
+    expenses.append(new_expense)
+    return new_expense
+
+
+@app.get("/expenses")
+def list_expenses():
+    return expenses
+
+
+@app.get("/expenses/{expense_id}")
+def get_expense(expense_id: int):
+    for expense in expenses:
+        if expense["id"] == expense_id:
+            return expense
+    raise HTTPException(status_code=404, detail="Expense not found")
