@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 app = FastAPI()
 
 expenses = []
+next_id = 1
 
 
 class ExpenseIn(BaseModel):
@@ -19,7 +20,9 @@ def health():
 
 @app.post("/expenses", status_code=201)
 def create_expense(expense: ExpenseIn):
-    new_expense = {"id": len(expenses) + 1, **expense.model_dump()}
+    global next_id
+    new_expense = {"id": next_id, **expense.model_dump()}
+    next_id += 1
     expenses.append(new_expense)
     return new_expense
 
@@ -36,10 +39,6 @@ def get_expense(expense_id: int):
             return expense
     raise HTTPException(status_code=404, detail="Expense not found")
 
-
-@app.delete("/reset", status_code=204)
-def reset():
-    expenses.clear()
 
 @app.put("/expenses/{expense_id}")
 def update_expense(expense_id: int, expense: ExpenseIn):
@@ -58,3 +57,10 @@ def delete_expense(expense_id: int):
             expenses.pop(i)
             return
     raise HTTPException(status_code=404, detail="Expense not found")
+
+
+@app.delete("/reset", status_code=204)
+def reset():
+    global next_id
+    expenses.clear()
+    next_id = 1

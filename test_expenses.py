@@ -89,3 +89,11 @@ def test_delete_expense(client):
 def test_delete_expense_not_found(client):
     response = client.delete("/expenses/9999")
     assert response.status_code == 404
+
+def test_ids_are_unique_after_delete(client):
+    payload = {"title": "Item", "amount": 10.0, "category": "food"}
+    client.post("/expenses", json=payload)
+    client.post("/expenses", json=payload)
+    client.delete("/expenses/1")
+    third = client.post("/expenses", json=payload).json()
+    assert third["id"] == 3
