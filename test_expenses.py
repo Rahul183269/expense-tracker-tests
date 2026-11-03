@@ -53,3 +53,39 @@ def test_list_expenses_after_create(client):
     )
     response = client.get("/expenses")
     assert len(response.json()) == 2
+
+def test_update_expense(client):
+    client.post(
+        "/expenses",
+        json={"title": "Lunch", "amount": 250.0, "category": "food"},
+    )
+    response = client.put(
+        "/expenses/1",
+        json={"title": "Dinner", "amount": 400.0, "category": "food"},
+    )
+    assert response.status_code == 200
+    assert response.json()["title"] == "Dinner"
+    assert response.json()["amount"] == 400.0
+
+
+def test_update_expense_not_found(client):
+    response = client.put(
+        "/expenses/9999",
+        json={"title": "Dinner", "amount": 400.0, "category": "food"},
+    )
+    assert response.status_code == 404
+
+
+def test_delete_expense(client):
+    client.post(
+        "/expenses",
+        json={"title": "Lunch", "amount": 250.0, "category": "food"},
+    )
+    response = client.delete("/expenses/1")
+    assert response.status_code == 204
+    assert client.get("/expenses/1").status_code == 404
+
+
+def test_delete_expense_not_found(client):
+    response = client.delete("/expenses/9999")
+    assert response.status_code == 404

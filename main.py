@@ -40,3 +40,21 @@ def get_expense(expense_id: int):
 @app.delete("/reset", status_code=204)
 def reset():
     expenses.clear()
+
+@app.put("/expenses/{expense_id}")
+def update_expense(expense_id: int, expense: ExpenseIn):
+    for i, existing in enumerate(expenses):
+        if existing["id"] == expense_id:
+            updated = {"id": expense_id, **expense.model_dump()}
+            expenses[i] = updated
+            return updated
+    raise HTTPException(status_code=404, detail="Expense not found")
+
+
+@app.delete("/expenses/{expense_id}", status_code=204)
+def delete_expense(expense_id: int):
+    for i, existing in enumerate(expenses):
+        if existing["id"] == expense_id:
+            expenses.pop(i)
+            return
+    raise HTTPException(status_code=404, detail="Expense not found")
